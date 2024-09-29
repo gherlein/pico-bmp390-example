@@ -20,6 +20,7 @@
 //
 // E.g. if slave addresses 0x12 and 0x34 were acknowledged.
 
+#include <pico/time.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -87,7 +88,7 @@ int main() {
     rslt = bmp3_init(&dev);
     bmp3_check_rslt("bmp3_init", rslt);
 
-    settings.int_settings.drdy_en = BMP3_ENABLE;
+    settings.int_settings.drdy_en = BMP3_DISABLE;
     settings.press_en = BMP3_ENABLE;
     settings.temp_en = BMP3_ENABLE;
 
@@ -126,13 +127,14 @@ int main() {
             bmp3_check_rslt("bmp3_get_status", rslt);
 
 #ifdef BMP3_FLOAT_COMPENSATION
-            printf("Data[%d]  T: %.2f deg C, P: %.2f Pa\n", loop, (data.temperature), (data.pressure));
+            printf("T: %.2f P: %.2f \n", (data.temperature), (data.pressure));
 #else
             printf("Data[%d]  T: %ld deg C, P: %lu Pa\n", loop, (long int)(int32_t)(data.temperature / 100),
                    (long unsigned int)(uint32_t)(data.pressure / 100));
 #endif
 
             loop = loop + 1;
+            sleep_ms(1000);
         }
     }
 
