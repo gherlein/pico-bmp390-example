@@ -42,6 +42,8 @@ int main() {
     // init i2c0 with default pins and 100kHz
     sys_i2c_init_def(I2C_PORT, 100000, true);
 
+// #define SCAN
+#ifdef SCAN
     printf("\nI2C Bus Scan\n");
     printf("   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
 
@@ -66,7 +68,7 @@ int main() {
         printf(ret < 0 ? "." : "@");
         printf(addr % 16 == 15 ? "\n" : "  ");
     }
-
+#endif  // SCAN
     int8_t rslt;
     uint8_t loop = 0;
     uint16_t settings_sel;
@@ -80,7 +82,6 @@ int main() {
      *         For SPI : BMP3_SPI_INTF
      */
     rslt = bmp3_interface_init(I2C_PORT, &dev, BMP3_I2C_INTF);
-#ifdef BMP_ALL
     bmp3_check_rslt("bmp3_interface_init", rslt);
 
     rslt = bmp3_init(&dev);
@@ -104,12 +105,13 @@ int main() {
     rslt = bmp3_set_op_mode(&settings, &dev);
     bmp3_check_rslt("bmp3_set_op_mode", rslt);
 
-    while (loop < 100) {
+    while (1) {
         rslt = bmp3_get_status(&status, &dev);
         bmp3_check_rslt("bmp3_get_status", rslt);
-
+        // printf(".");
         /* Read temperature and pressure data iteratively based on data ready interrupt */
-        if ((rslt == BMP3_OK) && (status.intr.drdy == BMP3_ENABLE)) {
+        // if ((rslt == BMP3_OK) && (status.intr.drdy == BMP3_ENABLE)) {
+        if (rslt == BMP3_OK) {
             /*
              * First parameter indicates the type of data to be read
              * BMP3_PRESS_TEMP : To read pressure and temperature data
@@ -133,10 +135,6 @@ int main() {
             loop = loop + 1;
         }
     }
-
-    bmp3_coines_deinit();
-#endif
-    return rslt;
 
     printf("Done.\n");
     return 0;
